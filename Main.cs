@@ -4,7 +4,7 @@
 public class Main
 {
 	// The mod's unique identifier (GUID) for internal use and patching.
-	public static string GUID = "com.github.ignoredsoul.hastyeffects";
+	public static string GUID = "com.github.ignoredsoul.hasteeffects";
 
 	// The name of the mod, used for the config menu.
 	public static string NAME = "HastyEffects";
@@ -52,10 +52,6 @@ public class Main
 		stats.ForEach(stat => stat.Destroy());
 		stats.Clear();
 
-		// Check if the game is in endless mode. Probs a better way but it works
-		bool isEndless = UnityEngine.GameObject.Find("GAME/UI_Gameplay/LeftCorner/Distance").activeSelf;
-		if (isEndless) stats.Add(new("", 0));
-
 		// Randomize and display the selected stats in the UI.
 		selectedStats.ForEach((stat) =>
 		{
@@ -65,15 +61,12 @@ public class Main
 			// Add the stat to the UI
 			UIStats newStat = new(
 				stat.ToString() + ": " + Manager.GetStat(stat).multiplier.ToString("0.0") + "x",
-				(stats.Count + 1)
+				(stats.Count)
 			);
 
 			// Then add statui to the list
 			stats.Add(newStat);
 		});
-
-		// Hide the first stat in endless mode since it's a blank stat and is used for making space.
-		if (isEndless) stats[0].InfoObject.SetActive(false);
 	}
 }
 

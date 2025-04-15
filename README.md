@@ -4,7 +4,10 @@ Selecting random stats and modifing them to create unique challenges or easy as 
 
 # Updates
 
-### 1.0.1
+### v1.0.2
+- Fixed ui once again
+
+### v1.0.1
 - Fixed for new Haste version, it broke the UI elements
 
 ### v1.1.0

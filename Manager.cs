@@ -219,7 +219,7 @@ internal class UIStats
 		UnityEngine.Object.Destroy(InfoObject.GetComponent<UI_Speed>());
 
 		// Adjust the position of the UI element, applying the vertical shift.
-		InfoObject.transform.position = new(InfoObject.transform.position.x, InfoObject.transform.position.y - (50 * shift), InfoObject.transform.position.z);
+		InfoObject.transform.position = new(InfoObject.transform.position.x + 109, InfoObject.transform.position.y - (50 * shift), InfoObject.transform.position.z);
 		InfoObject.GetComponentInChildren<UnityEngine.UI.Image>().color = new UnityEngine.Color(0.067f, 0.878f, 0.537f);
 
 		// Get the TextMeshProUGUI component and configure the text.

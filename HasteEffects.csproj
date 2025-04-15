@@ -19,6 +19,7 @@
 		<Reference Include="C:\Program Files (x86)\Steam\steamapps\workshop\content\1796470\3408901301\0Harmony.dll" Private="false" />
 	</ItemGroup>
 
+	<!-- Just builds directly into the 0Harmony path for quicker testing -->
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 	  <Exec Command="xcopy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;C:\Program Files (x86)\Steam\steamapps\workshop\content\1796470\3408901301&quot; /Y&#xD;&#xA;" />
 	</Target>
