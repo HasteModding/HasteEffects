@@ -4,57 +4,57 @@ namespace HasteEffects;
 
 public class Values
 {
-	internal HastyFloat AirSpeed_Max;
+	private HastyFloat AirSpeed_Max;
 
-	internal HastyFloat AirSpeed_Min;
+	private HastyFloat AirSpeed_Min;
 
-	internal HastyFloat Boost_Max;
+	private HastyFloat Boost_Max;
 
-	internal HastyFloat Boost_Min;
+	private HastyFloat Boost_Min;
 
-	internal HastyBool BossLevel_Apply;
+	private HastyBool BossLevel_Apply;
 
-	internal HastyBool ChallengeLevel_Apply;
+	private HastyBool ChallengeLevel_Apply;
 
-	internal HastyFloat Drag_Max;
+	private HastyFloat Drag_Max;
 
-	internal HastyFloat Drag_Min;
+	private HastyFloat Drag_Min;
 
-	internal HastyFloat FastFall_Max;
+	private HastyFloat FastFall_Max;
 
-	internal HastyFloat FastFall_Min;
+	private HastyFloat FastFall_Min;
 
-	internal HastyFloat Gravity_Max;
+	private HastyFloat Gravity_Max;
 
-	internal HastyFloat Gravity_Min;
+	private HastyFloat Gravity_Min;
 
-	internal HastyFloat Luck_Max;
+	private HastyFloat Luck_Max;
 
-	internal HastyFloat Luck_Min;
+	private HastyFloat Luck_Min;
 
-	internal HastyFloat MaxEnergy_Max;
+	private HastyFloat MaxEnergy_Max;
 
-	internal HastyFloat MaxEnergy_Min;
+	private HastyFloat MaxEnergy_Min;
 
-	internal HastyFloat PickupRange_Max;
+	private HastyFloat PickupRange_Max;
 
-	internal HastyFloat PickupRange_Min;
+	private HastyFloat PickupRange_Min;
 
-	internal HastyFloat RunSpeed_Max;
+	private HastyFloat RunSpeed_Max;
 
-	internal HastyFloat RunSpeed_Min;
+	private HastyFloat RunSpeed_Min;
 
-	internal HastyFloat SparkMulti_Max;
+	private HastyFloat SparkMulti_Max;
 
-	internal HastyFloat SparkMulti_Min;
+	private HastyFloat SparkMulti_Min;
 
-	internal HastyFloat TurnSpeed_Max;
+	private HastyFloat TurnSpeed_Max;
 
-	internal HastyFloat TurnSpeed_Min;
+	private HastyFloat TurnSpeed_Min;
 
 	public Values()
 	{
-		HastySetting cfg = new($"<size=80%>{Main.NAME}", Main.GUID);
+		HastySetting cfg = new(Main.NAME, Main.GUID);
 
 		ChallengeLevel_Apply = new HastyBool(cfg, "Challenges", "Apply to challenege levels", false);
 		BossLevel_Apply = new HastyBool(cfg, "Boss", "Apply to the boss level", false);
@@ -88,10 +88,26 @@ public class Values
 
 		SparkMulti_Min = new HastyFloat(cfg, "Spark Multiplier", "min", 0f, 10f, 0.95f);
 		SparkMulti_Max = new HastyFloat(cfg, "Spark Multiplier", "max", 0f, 10f, 5f);
+
+		new HastyButton(cfg, "Reset to default", "Resets all values to their default values (close and open to see the values update)", "Reset", () =>
+		{
+			IEnumerable<FieldInfo> fields = Main.Values.GetType()
+				.GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+				.Where(f => new[] { typeof(HastyFloat), typeof(HastyBool) }.Contains(f.FieldType));
+
+			foreach (FieldInfo field in fields)
+			{
+				object value = field.GetValue(Main.Values);
+				value?.GetType()
+				.GetMethod("Reset", BindingFlags.Public | BindingFlags.Instance)?.Invoke(value, null);
+			}
+		});
 	}
 
 	public float airSpeed => NumberUtils.Next(AirSpeed_Min.Value, AirSpeed_Max.Value);
 	public float boost => NumberUtils.Next(Boost_Min.Value, Boost_Max.Value);
+	public bool bossLevels => BossLevel_Apply.Value;
+	public bool challengeLevels => ChallengeLevel_Apply.Value;
 	public float drag => NumberUtils.Next(Drag_Min.Value, Drag_Max.Value);
 	public float FastFall => NumberUtils.Next(FastFall_Min.Value, FastFall_Max.Value);
 	public float gravity => NumberUtils.Next(Gravity_Min.Value, Gravity_Max.Value);
@@ -150,8 +166,8 @@ internal class Manager
 		get
 		{
 			UnityEngine.SceneManagement.Scene curScn = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
-			return (curScn.name.ToLower().Contains("challenge") && Main.Values.ChallengeLevel_Apply.Value)
-				|| (curScn.buildIndex == 27 && Main.Values.BossLevel_Apply.Value)
+			return (curScn.name.ToLower().Contains("challenge") && Main.Values.challengeLevels)
+				|| (curScn.buildIndex == 27 && Main.Values.bossLevels)
 				|| curScn.buildIndex == 7;
 		}
 	}

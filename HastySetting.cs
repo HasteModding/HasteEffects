@@ -3,6 +3,56 @@
 // Modified from https://github.com/NaokoAF/HastyControls, just making it fit my style better ig
 namespace HasteEffects;
 
+public class HastyBool : BoolSetting, IExposedSetting, IEnumSetting
+{
+	private List<string> choices;
+
+	private HastySetting config;
+
+	private bool defaultValue;
+
+	private UnityEngine.Localization.LocalizedString displayName;
+
+	/// <summary>
+	/// Creates a new <see cref="bool"/> setting with custom choices for "On" and "Off" values.
+	/// </summary>
+	/// <param name="cfg">The config object the setting belongs to.</param>
+	/// <param name="name">Name of the setting (used as a key).</param>
+	/// <param name="description">Displayed description in the UI.</param>
+	/// <param name="defaultValue">Default boolean value (true or false).</param>
+	/// <param name="offChoice">Text for the "Off" option (defaults to "Off").</param>
+	/// <param name="onChoice">Text for the "On" option (defaults to "On").</param>
+	public HastyBool(HastySetting cfg, string name, string description, bool defaultValue, string offChoice = "Off", string onChoice = "On")
+	{
+		config = cfg;
+		this.defaultValue = defaultValue;
+		displayName = cfg.CreateDisplayName(name, description);
+		choices = new List<string> { offChoice, onChoice };
+		cfg.Add(this);
+	}
+
+	public event Action<bool>? Applied;
+
+	public override UnityEngine.Localization.LocalizedString OffString => null!;
+
+	public override UnityEngine.Localization.LocalizedString OnString => null!;
+
+	public override void ApplyValue() => Applied?.Invoke(Value);
+
+	public string GetCategory() => config.ModName;
+
+	public UnityEngine.Localization.LocalizedString GetDisplayName() => displayName;
+
+	/// <summary>
+	/// Gets the unlocalized choices for this setting ("On" and "Off").
+	/// </summary>
+	List<string> IEnumSetting.GetUnlocalizedChoices() => choices;
+
+	public void Reset() => Value = defaultValue;
+
+	protected override bool GetDefaultValue() => defaultValue;
+}
+
 public class HastyFloat : FloatSetting, IExposedSetting
 {
 	private HastySetting config;
@@ -38,6 +88,8 @@ public class HastyFloat : FloatSetting, IExposedSetting
 	public string GetCategory() => config.ModName;
 
 	public UnityEngine.Localization.LocalizedString GetDisplayName() => displayName;
+
+	public void Reset() => this.Value = defaultValue;
 
 	protected override float GetDefaultValue() => defaultValue;
 
@@ -86,50 +138,36 @@ public class HastySetting
 	internal UnityEngine.Localization.LocalizedString CreateDisplayName(string name, string description = "") => new(Main.GUID, $"{name}\n<size=60%><alpha=#50>{description}");
 }
 
-public class HastyBool : BoolSetting, IExposedSetting, IEnumSetting
+public class HastyButton : ButtonSetting, IExposedSetting
 {
-	private List<string> choices;
-
+	private string buttonText;
 	private HastySetting config;
-
-	private bool defaultValue;
-
 	private UnityEngine.Localization.LocalizedString displayName;
 
 	/// <summary>
-	/// Creates a new <see cref="bool"/> setting with custom choices for "On" and "Off" values.
+	/// Creates a new button in a <see cref="HastySetting"/> menu.
 	/// </summary>
-	/// <param name="cfg">The config object the setting belongs to.</param>
+	/// <param name="cfg">The config this setting belongs to.</param>
 	/// <param name="name">Name of the setting (used as a key).</param>
 	/// <param name="description">Displayed description in the UI.</param>
-	/// <param name="defaultValue">Default boolean value (true or false).</param>
-	/// <param name="offChoice">Text for the "Off" option (defaults to "Off").</param>
-	/// <param name="onChoice">Text for the "On" option (defaults to "On").</param>
-	public HastyBool(HastySetting cfg, string name, string description, bool defaultValue, string offChoice = "Off", string onChoice = "On")
+	/// <param name="buttonText">Text on the button.</param>
+	/// <param name="onClick">Action that get's invoked when clicked.</param>
+	public HastyButton(HastySetting cfg, string name, string description, string buttonText, Action onClick = null)
 	{
 		config = cfg;
-		this.defaultValue = defaultValue;
+		this.buttonText = buttonText;
+		Clicked = onClick;
 		displayName = cfg.CreateDisplayName(name, description);
-		choices = new List<string> { offChoice, onChoice };
 		cfg.Add(this);
 	}
 
-	public event Action<bool>? Applied;
+	public event Action? Clicked;
 
-	public override UnityEngine.Localization.LocalizedString OffString => null!;
-
-	public override UnityEngine.Localization.LocalizedString OnString => null!;
-
-	public override void ApplyValue() => Applied?.Invoke(Value);
+	public override string GetButtonText() => buttonText;
 
 	public string GetCategory() => config.ModName;
 
 	public UnityEngine.Localization.LocalizedString GetDisplayName() => displayName;
 
-	/// <summary>
-	/// Gets the unlocalized choices for this setting ("On" and "Off").
-	/// </summary>
-	List<string> IEnumSetting.GetUnlocalizedChoices() => choices;
-
-	protected override bool GetDefaultValue() => defaultValue;
+	public override void OnClicked(ISettingHandler settingHandler) => Clicked?.Invoke();
 }

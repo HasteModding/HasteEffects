@@ -61,7 +61,7 @@ public class Main
 			// Add the stat to the UI
 			UIStats newStat = new(
 				stat.ToString() + ": " + Manager.GetStat(stat).multiplier.ToString("0.0") + "x",
-				(stats.Count)
+				stats.Count
 			);
 
 			// Then add statui to the list

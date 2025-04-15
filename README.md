@@ -4,6 +4,9 @@ Selecting random stats and modifing them to create unique challenges or easy as 
 
 # Updates
 
+### v1.1.0
+- Added a new button to reset values to their defaults
+
 ### v1.0.2
 - Fixed ui once again
 
