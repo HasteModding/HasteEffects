@@ -1,99 +1,50 @@
 ﻿using System.Reflection;
+using HastySettings;
 
 namespace HasteEffects;
 
 public class Values
 {
 	private HastyFloat AirSpeed_Max;
-
 	private HastyFloat AirSpeed_Min;
-
 	private HastyFloat Boost_Max;
-
 	private HastyFloat Boost_Min;
 
 	private HastyBool BossLevel_Apply;
-
 	private HastyBool ChallengeLevel_Apply;
-
 	private HastyFloat Drag_Max;
 
 	private HastyFloat Drag_Min;
-
+	private HastyFloat FailChance;
 	private HastyFloat FastFall_Max;
-
 	private HastyFloat FastFall_Min;
-
 	private HastyFloat Gravity_Max;
-
 	private HastyFloat Gravity_Min;
-
 	private HastyFloat Luck_Max;
-
 	private HastyFloat Luck_Min;
 
+	private HastyFloat MaxEffects;
 	private HastyFloat MaxEnergy_Max;
 
 	private HastyFloat MaxEnergy_Min;
-
 	private HastyFloat PickupRange_Max;
-
 	private HastyFloat PickupRange_Min;
-
 	private HastyFloat RunSpeed_Max;
-
 	private HastyFloat RunSpeed_Min;
-
 	private HastyFloat SparkMulti_Max;
-
 	private HastyFloat SparkMulti_Min;
-
 	private HastyFloat TurnSpeed_Max;
-
 	private HastyFloat TurnSpeed_Min;
 
 	public Values()
 	{
-		HastySetting cfg = new(Main.NAME, Main.GUID);
+		HastySettings.HastySettings cfg = new(Main.NAME);
 
-		ChallengeLevel_Apply = new HastyBool(cfg, "Challenges", "Apply to challenege levels", false);
-		BossLevel_Apply = new HastyBool(cfg, "Boss", "Apply to the boss level", false);
-
-		Gravity_Min = new HastyFloat(cfg, "Gravity", "min", 0f, 10f, 0.8f);
-		Gravity_Max = new HastyFloat(cfg, "Gravity", "max", 0f, 10f, 2f);
-
-		RunSpeed_Min = new HastyFloat(cfg, "Run Speed", "min", 0f, 10f, 0.4f);
-		RunSpeed_Max = new HastyFloat(cfg, "Run Speed", "max", 0f, 10f, 3f);
-
-		TurnSpeed_Min = new HastyFloat(cfg, "Turn Speed", "min", 0f, 10f, 0.8f);
-		TurnSpeed_Max = new HastyFloat(cfg, "Turn Speed", "max", 0f, 10f, 3f);
-
-		AirSpeed_Min = new HastyFloat(cfg, "Air Speed", "min", 0f, 10f, 0.4f);
-		AirSpeed_Max = new HastyFloat(cfg, "Air Speed", "max", 0f, 10f, 2f);
-
-		Drag_Min = new HastyFloat(cfg, "Drag", "min", 0f, 10f, 0.75f);
-		Drag_Max = new HastyFloat(cfg, "Drag", "max", 0f, 10f, 1.25f);
-
-		MaxEnergy_Min = new HastyFloat(cfg, "Max Energy", "min", 0f, 10f, 0.8f);
-		MaxEnergy_Max = new HastyFloat(cfg, "Max Energy", "max", 0f, 10f, 3f);
-
-		PickupRange_Min = new HastyFloat(cfg, "Pickup Range", "min", 0f, 10f, 0.5f);
-		PickupRange_Max = new HastyFloat(cfg, "Pickup Range", "max", 0f, 10f, 2.5f);
-
-		Boost_Min = new HastyFloat(cfg, "Boost", "min", 0f, 10f, 0.75f);
-		Boost_Max = new HastyFloat(cfg, "Boost", "max", 0f, 10f, 2.25f);
-
-		FastFall_Min = new HastyFloat(cfg, "Fast Fall", "min", 0f, 10f, 0.5f);
-		FastFall_Max = new HastyFloat(cfg, "Fast Fall", "max", 0f, 10f, 3f);
-
-		SparkMulti_Min = new HastyFloat(cfg, "Spark Multiplier", "min", 0f, 10f, 0.95f);
-		SparkMulti_Max = new HastyFloat(cfg, "Spark Multiplier", "max", 0f, 10f, 5f);
-
-		new HastyButton(cfg, "Reset to default", "Resets all values to their default values (close and open to see the values update)", "Reset", () =>
+		new HastyButton(cfg, "Reset to default", "Resets all values to their default values <size=40%>(close and open to see the values update)</size>", "Reset", () =>
 		{
 			IEnumerable<FieldInfo> fields = Main.Values.GetType()
 				.GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
-				.Where(f => new[] { typeof(HastyFloat), typeof(HastyBool) }.Contains(f.FieldType));
+				.Where(f => new[] { typeof(HastyFloat), typeof(HastyBool), typeof(HastyInt) }.Contains(f.FieldType));
 
 			foreach (FieldInfo field in fields)
 			{
@@ -102,6 +53,56 @@ public class Values
 				.GetMethod("Reset", BindingFlags.Public | BindingFlags.Instance)?.Invoke(value, null);
 			}
 		});
+
+		HastyCollapsible additional = new HastyCollapsible(cfg, "Additional", "Additional settings you can change");
+		MaxEffects = new HastyFloat(additional, "Max Effects", "Maximum number of effects to apply", 0, 11, 5, true);
+		FailChance = new HastyFloat(additional, "Fail Chance", "The chance for an effect to not apply", 0.01f, 1, 0.25f);
+		ChallengeLevel_Apply = new HastyBool(additional, "Challenges", "Apply to challenege levels", false);
+		BossLevel_Apply = new HastyBool(additional, "Boss", "Apply to the boss level", false);
+
+		HastyCollapsible gravity = new HastyCollapsible(cfg, "Gravity", "Gravity settings");
+		Gravity_Min = new HastyFloat(gravity, "Min Gravity", "", 0f, 10f, 0.8f);
+		Gravity_Max = new HastyFloat(gravity, "Max Gravity", "", 0f, 10f, 2f);
+
+		HastyCollapsible runspeed = new HastyCollapsible(cfg, "Run Speed", "Run Speed settings");
+		RunSpeed_Min = new HastyFloat(runspeed, "Min Run Speed", "", 0f, 10f, 0.4f);
+		RunSpeed_Max = new HastyFloat(runspeed, "Max Run Speed", "", 0f, 10f, 3f);
+
+		HastyCollapsible turnspeed = new HastyCollapsible(cfg, "Turn Speed", "Turn Speed settings");
+		TurnSpeed_Min = new HastyFloat(turnspeed, "Min Turn Speed", "", 0f, 10f, 0.8f);
+		TurnSpeed_Max = new HastyFloat(turnspeed, "Max Turn Speed", "", 0f, 10f, 3f);
+
+		HastyCollapsible airspeed = new HastyCollapsible(cfg, "Air Speed", "Air Speed settings");
+		AirSpeed_Min = new HastyFloat(airspeed, "Min Air Speed", "", 0f, 10f, 0.4f);
+		AirSpeed_Max = new HastyFloat(airspeed, "Max Air Speed", "", 0f, 10f, 2f);
+
+		HastyCollapsible drag = new HastyCollapsible(cfg, "Drag", "Drag settings");
+		Drag_Min = new HastyFloat(drag, "Min Drag", "", 0f, 10f, 0.75f);
+		Drag_Max = new HastyFloat(drag, "Max Drag", "", 0f, 10f, 1.25f);
+
+		HastyCollapsible maxenergy = new HastyCollapsible(cfg, "Max Energy", "Max Energy settings");
+		MaxEnergy_Min = new HastyFloat(maxenergy, "Min Max Energy", "", 0f, 10f, 0.8f);
+		MaxEnergy_Max = new HastyFloat(maxenergy, "Max Max Energy", "", 0f, 10f, 3f);
+
+		HastyCollapsible pickuprange = new HastyCollapsible(cfg, "Pickup Range", "Pickup Range settings");
+		PickupRange_Min = new HastyFloat(pickuprange, "Min Pickup Range", "", 0f, 10f, 0.5f);
+		PickupRange_Max = new HastyFloat(pickuprange, "Max Pickup Range", "mx", 0f, 10f, 2.5f);
+
+		HastyCollapsible boost = new HastyCollapsible(cfg, "Boost", "Boost settings");
+		Boost_Min = new HastyFloat(boost, "Min Boost", "", 0f, 10f, 0.75f);
+		Boost_Max = new HastyFloat(boost, "Max Boost", "", 0f, 10f, 2.25f);
+
+		HastyCollapsible fastfall = new HastyCollapsible(cfg, "Fast Fall", "Fast Fall settings");
+		FastFall_Min = new HastyFloat(fastfall, "Min Fast Fall", "", 0f, 10f, 0.5f);
+		FastFall_Max = new HastyFloat(fastfall, "Max Fast Fall", "", 0f, 10f, 3f);
+
+		HastyCollapsible sparkmulti = new HastyCollapsible(cfg, "Spark Multiplier", "Spark Multiplier settings");
+		SparkMulti_Min = new HastyFloat(sparkmulti, "Min Spark Multiplier", "", 0f, 10f, 0.95f);
+		SparkMulti_Max = new HastyFloat(sparkmulti, "Max Spark Multiplier", "", 0f, 10f, 5f);
+
+		HastyCollapsible luck = new HastyCollapsible(cfg, "Luck", "Luck settings");
+		Luck_Min = new HastyFloat(luck, "Min Luck", "", 0f, 10f, 0.95f);
+		Luck_Max = new HastyFloat(luck, "Max Luck", "", 0f, 10f, 5f);
 	}
 
 	public float airSpeed => NumberUtils.Next(AirSpeed_Min.Value, AirSpeed_Max.Value);
@@ -109,10 +110,13 @@ public class Values
 	public bool bossLevels => BossLevel_Apply.Value;
 	public bool challengeLevels => ChallengeLevel_Apply.Value;
 	public float drag => NumberUtils.Next(Drag_Min.Value, Drag_Max.Value);
+	public float failChance => FailChance.Value;
 	public float FastFall => NumberUtils.Next(FastFall_Min.Value, FastFall_Max.Value);
 	public float gravity => NumberUtils.Next(Gravity_Min.Value, Gravity_Max.Value);
 	public float luck => NumberUtils.Next(Luck_Min.Value, Luck_Max.Value);
+	public int maxEffects => (int)MaxEffects.Value;
 	public float maxEnergy => NumberUtils.Next(MaxEnergy_Min.Value, MaxEnergy_Max.Value);
+
 	public float runSpeed => NumberUtils.Next(RunSpeed_Min.Value, RunSpeed_Max.Value);
 	public float sparkMultiplier => NumberUtils.Next(SparkMulti_Min.Value, SparkMulti_Max.Value);
 	public float sparkPickupRange => NumberUtils.Next(PickupRange_Min.Value, PickupRange_Max.Value);
@@ -180,13 +184,16 @@ internal class Manager
 	internal static PlayerStat GetStat(Stat stat)
 	{
 		// Find the corresponding field in the player's stats using reflection.
-		FieldInfo field = Player.localPlayer.stats.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance)
-			.FirstOrDefault(f => f.Name.Equals(stat.ToString(), StringComparison.OrdinalIgnoreCase));
+		// I am doing contains instead of just equal 'cause I want my enum to contain "sparkMulti" instead of "sparkMultiplier"
+		FieldInfo field = Player.localPlayer.stats.GetType()
+			.GetFields(BindingFlags.Public | BindingFlags.Instance)
+			.Where(f => f.FieldType == typeof(PlayerStat))
+			.FirstOrDefault(f => f.Name.Contains(stat.ToString(), StringComparison.OrdinalIgnoreCase));
 
 		// If the field exists, return the PlayerStat; otherwise, log a debug message.
 		if (field?.GetValue(Player.localPlayer.stats) is PlayerStat playerStat) return playerStat;
-		else { UnityEngine.Debug.Log($"Stat '{stat.ToString()}' not found in PlayerStats."); }
-		return null!;// Return null if not found (this shouldn't happen in most cases).
+		else { UnityEngine.Debug.LogError($"Stat '{stat.ToString()}' not found in PlayerStats."); }
+		return null!; // Return null if not found (this shouldn't happen in most cases).
 	}
 
 	/// <summary>
@@ -201,7 +208,12 @@ internal class Manager
 			.FirstOrDefault(p => p.Name.Equals(stat.ToString(), StringComparison.OrdinalIgnoreCase));
 
 		// If found, return the value of the property.
-		if (property != null) return (float)property.GetValue(Main.Values);
+		if (property != null)
+		{
+			float v = (float)property.GetValue(Main.Values);
+			if (v.ToString("0.0") == "1.0") v += NumberUtils.Next(-0.1f, 0.1f); // If the value is 1, we add a small random value to it. Fuck you.
+			return v;
+		}
 		else { UnityEngine.Debug.Log($"Stat '{stat.ToString()}' not found in Values."); }
 		return 1; // If we cannot find it for some reason, we just return 1 which is default. Oh well.
 	}
@@ -263,7 +275,7 @@ public enum Stat
 	MaxEnergy,
 	PickupRange,
 	Boost,
-	FastFall,
+	FallSpeed,
 	SparkMulti,
 	Luck
 }

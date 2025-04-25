@@ -7,7 +7,7 @@ public class Main
 	public static string GUID = "com.github.ignoredsoul.hasteeffects";
 
 	// The name of the mod, used for the config menu.
-	public static string NAME = "HastyEffects";
+	public static string NAME = "HasteEffects";
 
 	// The Harmony instance
 	private static HarmonyLib.Harmony harmony;
@@ -19,6 +19,9 @@ public class Main
 	{
 		harmony = new(GUID);
 		harmony.PatchAll(typeof(Patching));
+		Values = null!;
+
+		On.HasteSettingsHandler.RegisterPage += (orig, self) => Values = new Values();
 	}
 
 	// Accessor property
@@ -33,19 +36,15 @@ public class Main
 		List<Stat> availableStats = Enum.GetValues(typeof(Stat)).Cast<Stat>().ToList();
 		List<Stat> selectedStats = new();
 
-		// Pick a random stat and add it to the selected stats.
-		Stat gstat = availableStats[NumberUtils.random.Next(0, availableStats.Count)];
-		availableStats.Remove(gstat);
-		selectedStats.Add(gstat);
-
-		// Add up to 5 more stats, with a random chance to include each one.
-		for (int i = 0; (i < 5 && availableStats.Any()); i++)
+		// Add up to X stats, with a random chance to include each one.
+		for (int i = 0; (i < Values.maxEffects && availableStats.Any()); i++)
 		{
+			// Select a stat from the available stats list and remove it so it cannot be picked again.
 			Stat stat = availableStats[NumberUtils.random.Next(0, availableStats.Count)];
 			availableStats.Remove(stat);
 
 			// The chance of adding a stat decreases as we add more.
-			if (NumberUtils.NextD() > (i * 0.25)) selectedStats.Add(stat);
+			if (NumberUtils.NextD() > (i * Values.failChance)) selectedStats.Add(stat);
 		}
 
 		// Destroy all previous stats and clear the list.
@@ -60,7 +59,7 @@ public class Main
 
 			// Add the stat to the UI
 			UIStats newStat = new(
-				stat.ToString() + ": " + Manager.GetStat(stat).multiplier.ToString("0.0") + "x",
+				stat.ToString() + ": " + Manager.GetStat(stat).multiplier.ToString("0.0") + "x", // I can use the string format but that rounds.
 				stats.Count
 			);
 
@@ -73,8 +72,6 @@ public class Main
 [HarmonyLib.HarmonyPatch]
 public class Patching
 {
-	// Think I can use 'On.Player.ResetPlayer' but honestly, don't care to try.
-
 	/// <summary>
 	/// Patches the "RestartPlayer_Launch" method to randomize stats.
 	/// </summary>
@@ -103,24 +100,4 @@ public class Patching
 	[HarmonyLib.HarmonyPostfix]
 	private static void OnRestartPlayer(UnityEngine.Transform spawnPoint, int animId = 1)
 	{ if (Manager.IsRun) Main.Randomize(); }
-
-	/// <summary>
-	/// Patches the "OnStringChanged" method to update the localized text if it belongs to this mod's GUID.
-	/// </summary>
-	/// <param name="__instance">The instance of the LocalizeUIText being patched.</param>
-	[HarmonyLib.HarmonyPatch(typeof(Zorro.Localization.LocalizeUIText), "OnStringChanged")]
-	[HarmonyLib.HarmonyPostfix]
-	private static void OnStringChangedPostfix(Zorro.Localization.LocalizeUIText __instance)
-	{
-		if (__instance.String?.TableReference.TableCollectionName != Main.GUID) return;
-		__instance.Text.text = __instance.String.TableEntryReference.Key;
-	}
-
-	/// <summary>
-	/// Patches the "RegisterPage" method to initialize the Values object when the settings page is registered.
-	/// </summary>
-	/// <param name="__instance">The instance of HasteSettingsHandler being patched.</param>
-	[HarmonyLib.HarmonyPatch(typeof(HasteSettingsHandler), "RegisterPage")]
-	[HarmonyLib.HarmonyPrefix]
-	private static void RegisterPagePrefix(HasteSettingsHandler __instance) => Main.Values = new Values();
 }
