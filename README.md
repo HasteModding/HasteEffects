@@ -6,7 +6,7 @@ Selecting random stats and modifing them to create unique challenges or easy as 
 
 ### v1.2.0
 - Revamped HastySettings
-- Fixed but that wouldn't save your settings, reseting them to the last changed value of any setting.
+- Fixed saving your settings made them reset to the last changed value of any setting.
 
 ### v1.1.0
 - Added a new button to reset values to their defaults
