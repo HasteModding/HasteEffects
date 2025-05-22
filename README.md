@@ -108,13 +108,8 @@ Subscribe to the mod on the [Steam Workshop](https://steamcommunity.com/sharedfi
 - Removed HarmonyX as a dependancy. Moved to Hooks.
 
 ### v1.2.0
-<<<<<<< HEAD
-- Revamped HastySettings.
-- Fixed but that wouldn't save your settings, reseting them to the last changed value of any setting.
-=======
 - Revamped HastySettings
 - Fixed saving your settings made them reset to the last changed value of any setting.
->>>>>>> f5c9044fceb8b51b02769f7d89a8e6105d5ba8a7
 
 ### v1.1.0
 - Added a new button to reset values to their defaults.
